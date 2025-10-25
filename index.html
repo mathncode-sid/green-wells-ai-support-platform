@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Wells Energies - AI Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Add login modal for admin authentication -->
+        <div id="login-modal" class="login-modal hidden">
+            <div class="login-container">
+                <div class="login-box">
+                    <h2>Admin Login</h2>
+                    <p class="login-subtitle">Enter your credentials to access the admin dashboard</p>
+                    <form id="login-form" class="login-form">
+                        <div class="form-group">
+                            <label for="login-username">Username</label>
+                            <input type="text" id="login-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary login-btn">Login</button>
+                        <p class="login-error hidden" id="login-error">Invalid credentials. Please try again.</p>
+                    </form>
+                    <p class="login-hint">Demo: username: <strong>admin</strong> | password: <strong>admin123</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <div class="logo-section">
+                    <div class="logo-placeholder">💧</div>
+                    <span class="brand-name">Green Wells Energies</span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn active" data-view="user">User View</button>
+                    <button class="nav-btn" data-view="admin">Admin Dashboard</button>
+                    <button class="nav-btn" data-view="agent">Agent Dashboard</button>
+                    <button class="nav-btn" data-view="settings">Settings</button>
+                    <button id="logout-btn" class="nav-btn logout-btn hidden">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User View -->
+        <div id="user-view" class="view active">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>We Value Your Feedback</h1>
+                    <p>Share your experience or chat with our AI-powered assistant</p>
+                </div>
+            </section>
+
+            <!-- Feedback Form Section -->
+            <section class="feedback-section">
+                <div class="container">
+                    <h2>Send Us Your Feedback</h2>
+                    <form id="feedback-form" class="feedback-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="service-type">Service Type</label>
+                            <select id="service-type" name="service-type" required>
+                                <option value="">Select a service</option>
+                                <option value="lpg">LPG Refill</option>
+                                <option value="fuel">Fuel Purchase</option>
+                                <option value="wash">Car Wash</option>
+                                <option value="oil">Oil Change</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <div class="star-rating" id="star-rating">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                            <input type="hidden" id="rating" name="rating" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="comments">Comments</label>
+                            <textarea id="comments" name="comments" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    </form>
+
+                    <!-- Success Message -->
+                    <div id="success-message" class="success-message hidden">
+                        <h3>Thank You!</h3>
+                        <p>Your feedback has been submitted successfully.</p>
+                    </div>
+
+                    <!-- AI Summary -->
+                    <div id="ai-summary" class="ai-summary hidden">
+                        <h3>AI Summary</h3>
+                        <p id="summary-text"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Button -->
+            <button id="chat-btn" class="chat-button">💬 Chat with Support</button>
+
+            <!-- Chat Popup -->
+            <div id="chat-popup" class="chat-popup hidden">
+                <div class="chat-header">
+                    <h3>Green Wells AI Assistant</h3>
+                    <button class="close-btn" id="close-chat">×</button>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <div class="chat-bubble bot">
+                        <p>Hello! How can I help you today?</p>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Type your message...">
+                    <button id="send-btn" class="btn btn-small">Send</button>
+                </div>
+                <button id="escalate-btn" class="btn btn-secondary btn-small">Connect to Live Agent</button>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>© 2025 Green Wells Energies Ltd | Your Energy Choice — Empowering Smart Energy Support</p>
+            </footer>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-view" class="view">
+            <div class="dashboard-container">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <nav class="sidebar-nav">
+                        <button class="sidebar-item active" data-section="overview">Overview</button>
+                        <button class="sidebar-item" data-section="analytics">Feedback Analytics</button>
+                        <button class="sidebar-item" data-section="insights">AI Insights</button>
+                        <button class="sidebar-item" data-section="performance">Team Performance</button>
+                    </nav>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="dashboard-main">
+                    <!-- Top Bar -->
+                    <div class="top-bar">
+                        <input type="text" class="search-box" placeholder="Search...">
+                        <div class="admin-profile">
+                            <span class="notification-badge">3</span>
+                            <span class="admin-avatar">👤</span>
+                        </div>
+                    </div>
+
+                    <!-- Overview Section -->
+                    <section id="overview-section" class="dashboard-section active">
+                        <h2>Dashboard Overview</h2>
+                        <div class="summary-cards">
+                            <div class="card">
+                                <h3>Total Feedback</h3>
+                                <p class="card-value">2,560</p>
+                            </div>
+                            <div class="card">
+                                <h3>Positive Sentiment</h3>
+                                <p class="card-value">84%</p>
+                            </div>
+                            <div class="card">
+                                <h3>Average Rating</h3>
+                                <p class="card-value">4.6/5</p>
+                            </div>
+                            <div class="card">
+                                <h3>AI Accuracy</h3>
+                                <p class="card-value">93%</p>
+                            </div>
+                        </div>
+
+                        <!-- Chart -->
+                        <div class="card chart-card">
+                            <h3>Feedback Trends</h3>
+                            <div id="trend-chart" class="chart"></div>
+                        </div>
+
+                        <!-- Daily Digest -->
+                        <div class="card">
+                            <h3>Daily Digest</h3>
+                            <p class="digest-text">AI Summary: Customer satisfaction rose 6% this week — most feedback concerns LPG delivery efficiency.</p>
+                        </div>
+                    </section>
+
+                    <!-- Analytics Section -->
+                    <section id="analytics-section" class="dashboard-section">
+                        <h2>Feedback Analytics</h2>
+                        <div class="filters">
+                            <select class="filter-select">
+                                <option>All Dates</option>
+                                <option>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>All Services</option>
+                                <option>LPG Refill</option>
+                                <option>Fuel Purchase</option>
+                                <option>Car Wash</option>
+                                <option>Oil Change</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>All Sentiments</option>
+                                <option>Positive</option>
+                                <option>Neutral</option>
+                                <option>Negative</option>
+                            </select>
+                        </div>
+
+                        <table class="feedback-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Service Type</th>
+                                    <th>Rating</th>
+                                    <th>Comment</th>
+                                    <th>Sentiment</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feedback-table-body">
+                                <tr>
+                                    <td>Mercy</td>
+                                    <td>LPG Refill</td>
+                                    <td>⭐⭐⭐⭐</td>
+                                    <td>Great experience, fast delivery</td>
+                                    <td><span class="sentiment positive">Positive</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Brian</td>
+                                    <td>Car Wash</td>
+                                    <td>⭐⭐⭐</td>
+                                    <td>Service was okay but delayed</td>
+                                    <td><span class="sentiment neutral">Neutral</span></td>
+                                </tr>
+                                <tr>
+                                    <td>John</td>
+                                    <td>Fuel Purchase</td>
+                                    <td>⭐⭐</td>
+                                    <td>Long wait times and poor service</td>
+                                    <td><span class="sentiment negative">Negative</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Word Cloud -->
+                        <div class="card">
+                            <h3>Common Themes</h3>
+                            <div class="word-cloud">
+                                <span style="font-size: 28px; color: #4A90E2;">Delivery</span>
+                                <span style="font-size: 20px; color: #6DD47E;">Service</span>
+                                <span style="font-size: 24px; color: #4A90E2;">Speed</span>
+                                <span style="font-size: 18px; color: #999;">Quality</span>
+                                <span style="font-size: 22px; color: #6DD47E;">Support</span>
+                                <span style="font-size: 16px; color: #999;">Price</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- AI Insights Section -->
+                    <section id="insights-section" class="dashboard-section">
+                        <h2>AI Insights</h2>
+                        <div class="insights-grid">
+                            <div class="card insight-card">
+                                <h3>Most Common Issue</h3>
+                                <p class="insight-value">Delivery Delays</p>
+                                <p class="insight-stat">42%</p>
+                            </div>
+                            <div class="card insight-card">
+                                <h3>Average Response Time</h3>
+                                <p class="insight-value">3.2 hours</p>
+                            </div>
+                            <div class="card insight-card">
+                                <h3>Tone Analysis</h3>
+                                <p class="insight-stat">Friendly 67% | Neutral 23% | Frustrated 10%</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>AI Recommendations</h3>
+                            <ul class="recommendations-list">
+                                <li>Automate routine delivery inquiries</li>
+                                <li>Enhance tone consistency in responses</li>
+                                <li>Introduce multilingual support for chatbot</li>
+                                <li>Implement proactive outreach for negative feedback</li>
+                                <li>Optimize peak hour staffing</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Team Performance Section -->
+                    <section id="performance-section" class="dashboard-section">
+                        <h2>Team Performance</h2>
+                        <table class="performance-table">
+                            <thead>
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>Chats Handled</th>
+                                    <th>Avg Rating</th>
+                                    <th>Resolution Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sarah Johnson</td>
+                                    <td>145</td>
+                                    <td>4.8/5</td>
+                                    <td>94%</td>
+                                </tr>
+                                <tr>
+                                    <td>Michael Chen</td>
+                                    <td>132</td>
+                                    <td>4.6/5</td>
+                                    <td>91%</td>
+                                </tr>
+                                <tr>
+                                    <td>Amara Okafor</td>
+                                    <td>128</td>
+                                    <td>4.7/5</td>
+                                    <td>93%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </main>
+            </div>
+        </div>
+
+        <!-- Agent Dashboard -->
+        <div id="agent-view" class="view">
+            <div class="agent-container">
+                <!-- Active Chats Panel -->
+                <aside class="chats-panel">
+                    <h3>Active Chats</h3>
+                    <div id="active-chats" class="chats-list">
+                        <div class="chat-item active" data-chat-id="1">
+                            <div class="chat-item-header">
+                                <span class="chat-name">Mercy K.</span>
+                                <span class="sentiment-tag friendly">Friendly</span>
+                            </div>
+                            <p class="chat-preview">How can I refill my LPG cylinder?</p>
+                        </div>
+                        <div class="chat-item" data-chat-id="2">
+                            <div class="chat-item-header">
+                                <span class="chat-name">James M.</span>
+                                <span class="sentiment-tag urgent">Urgent</span>
+                            </div>
+                            <p class="chat-preview">I haven't received my fuel order...</p>
+                        </div>
+                        <div class="chat-item" data-chat-id="3">
+                            <div class="chat-item-header">
+                                <span class="chat-name">Lisa P.</span>
+                                <span class="sentiment-tag neutral">Neutral</span>
+                            </div>
+                            <p class="chat-preview">What are your operating hours?</p>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Conversation Window -->
+                <main class="conversation-panel">
+                    <div class="conversation-header">
+                        <h3 id="current-customer">Mercy K.</h3>
+                        <span id="current-sentiment" class="sentiment-tag friendly">Friendly</span>
+                    </div>
+
+                    <div id="agent-chat-messages" class="agent-chat-messages">
+                        <div class="chat-bubble customer">
+                            <p>Hi, how can I refill my LPG cylinder?</p>
+                            <span class="timestamp">10:30 AM</span>
+                        </div>
+                        <div class="chat-bubble agent">
+                            <p>Hello Mercy! You can visit any Green Wells service station or request pickup via our hotline.</p>
+                            <span class="timestamp">10:31 AM</span>
+                        </div>
+                        <div class="chat-bubble customer">
+                            <p>Do you operate in Kisumu?</p>
+                            <span class="timestamp">10:32 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-input-area">
+                        <div class="ai-suggestions">
+                            <button class="suggestion-btn">Thank you for reaching out! I've logged your issue and will follow up within two hours.</button>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="agent-input" placeholder="Type your response...">
+                            <button class="btn btn-primary">Send</button>
+                        </div>
+                        <button class="btn btn-secondary">Mark as Resolved</button>
+                    </div>
+                </main>
+
+                <!-- Feedback Notes Panel -->
+                <aside class="notes-panel">
+                    <h3>Customer Notes</h3>
+                    <div class="notes-content">
+                        <p><strong>Service:</strong> LPG Refill</p>
+                        <p><strong>Rating:</strong> ⭐⭐⭐⭐⭐</p>
+                        <p><strong>Previous Issues:</strong> None</p>
+                        <textarea placeholder="Add notes..." class="notes-textarea"></textarea>
+                        <button class="btn btn-small">Save Notes</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-view" class="view">
+            <div class="settings-container">
+                <h1>Settings</h1>
+                
+                <div class="settings-tabs">
+                    <button class="settings-tab active" data-tab="profile">Profile Settings</button>
+                    <button class="settings-tab" data-tab="theme">Theme & Display</button>
+                    <button class="settings-tab" data-tab="language">Language</button>
+                    <button class="settings-tab" data-tab="ai">AI Personality</button>
+                </div>
+
+                <!-- Profile Settings Tab -->
+                <div id="profile-tab" class="settings-tab-content active">
+                    <h2>Profile Settings</h2>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="settings-name">Name</label>
+                            <input type="text" id="settings-name" value="Admin User">
+                        </div>
+                        <div class="form-group">
+                            <label for="settings-email">Email</label>
+                            <input type="email" id="settings-email" value="admin@greenwells.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="settings-role">Role</label>
+                            <select id="settings-role">
+                                <option>Admin</option>
+                                <option>Agent</option>
+                                <option>Manager</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+
+                <!-- Theme Tab -->
+                <div id="theme-tab" class="settings-tab-content">
+                    <h2>Theme & Display</h2>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label>Theme Mode</label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active" data-theme="light">Light</button>
+                                <button class="toggle-btn" data-theme="dark">Dark</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Language Tab -->
+                <div id="language-tab" class="settings-tab-content">
+                    <h2>Language</h2>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="language-select">Select Language</label>
+                            <select id="language-select">
+                                <option value="en">English</option>
+                                <option value="sw">Swahili</option>
+                                <option value="fr">French</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Personality Tab -->
+                <div id="ai-tab" class="settings-tab-content">
+                    <h2>AI Personality</h2>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label>AI Tone</label>
+                            <div class="slider-container">
+                                <span>Friendly</span>
+                                <input type="range" id="ai-slider" min="1" max="3" value="1" class="slider">
+                                <span>Professional</span>
+                            </div>
+                            <p class="slider-value">Current: Friendly</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
