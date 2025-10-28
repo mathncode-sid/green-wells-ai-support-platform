@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Wells Energies - Admin Dashboard</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login modal for admin authentication -->
+        <div id="login-modal" class="login-modal">
+            <div class="login-container">
+                <div class="login-box">
+                    <h2>Admin Login</h2>
+                    <p class="login-subtitle">Enter your credentials to access the admin dashboard</p>
+                    <form id="login-form" class="login-form">
+                        <div class="form-group">
+                            <label for="login-username">Username</label>
+                            <input type="text" id="login-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary login-btn">Login</button>
+                        <p class="login-error hidden" id="login-error">Invalid credentials. Please try again.</p>
+                    </form>
+                    <p class="login-hint">Demo: username: <strong>admin</strong> | password: <strong>admin123</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="navbar hidden" id="navbar">
+            <div class="navbar-container">
+                <div class="logo-section">
+                    <img src="static/images/green-wells-logo.png" alt="Green Wells Energies logo" class="site-logo">
+                    <span class="brand-name">Green Wells Energies - Admin</span>
+                </div>
+                <div class="nav-buttons">
+                    <a href="index.html" class="nav-link">Back to User</a>
+                    <button id="logout-btn" class="nav-btn logout-btn">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-view" class="view hidden" id="admin-dashboard">
+            <div class="dashboard-container">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <nav class="sidebar-nav">
+                        <button class="sidebar-item active" data-section="overview">Overview</button>
+                        <button class="sidebar-item" data-section="analytics">Feedback Analytics</button>
+                        <button class="sidebar-item" data-section="insights">AI Insights</button>
+                        <button class="sidebar-item" data-section="performance">Team Performance</button>
+                    </nav>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="dashboard-main">
+                    <!-- Top Bar -->
+                    <div class="top-bar">
+                        <input type="text" class="search-box" placeholder="Search...">
+                        <div class="admin-profile">
+                            <span class="notification-badge">3</span>
+                            <span class="admin-avatar">👤</span>
+                        </div>
+                    </div>
+
+                    <!-- Overview Section -->
+                    <section id="overview-section" class="dashboard-section active">
+                        <h2>Dashboard Overview</h2>
+                        <div class="summary-cards">
+                            <div class="card">
+                                <h3>Total Feedback</h3>
+                                <p class="card-value">2,560</p>
+                            </div>
+                            <div class="card">
+                                <h3>Positive Sentiment</h3>
+                                <p class="card-value">84%</p>
+                            </div>
+                            <div class="card">
+                                <h3>Average Rating</h3>
+                                <p class="card-value">4.6/5</p>
+                            </div>
+                            <div class="card">
+                                <h3>AI Accuracy</h3>
+                                <p class="card-value">93%</p>
+                            </div>
+                        </div>
+
+                        <!-- Chart -->
+                        <div class="card chart-card">
+                            <h3>Feedback Trends</h3>
+                            <div id="trend-chart" class="chart"></div>
+                        </div>
+
+                        <!-- Daily Digest -->
+                        <div class="card">
+                            <h3>Daily Digest</h3>
+                            <p class="digest-text">AI Summary: Customer satisfaction rose 6% this week — most feedback concerns LPG delivery efficiency.</p>
+                        </div>
+                    </section>
+
+                    <!-- Analytics Section -->
+                    <section id="analytics-section" class="dashboard-section">
+                        <h2>Feedback Analytics</h2>
+                        <div class="filters">
+                            <select class="filter-select">
+                                <option>All Dates</option>
+                                <option>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>All Services</option>
+                                <option>LPG Refill</option>
+                                <option>Fuel Purchase</option>
+                                <option>Car Wash</option>
+                                <option>Oil Change</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>All Sentiments</option>
+                                <option>Positive</option>
+                                <option>Neutral</option>
+                                <option>Negative</option>
+                            </select>
+                        </div>
+
+                        <table class="feedback-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Service Type</th>
+                                    <th>Rating</th>
+                                    <th>Comment</th>
+                                    <th>Sentiment</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feedback-table-body">
+                                <tr>
+                                    <td>Mercy</td>
+                                    <td>LPG Refill</td>
+                                    <td>⭐⭐⭐⭐</td>
+                                    <td>Great experience, fast delivery</td>
+                                    <td><span class="sentiment positive">Positive</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Brian</td>
+                                    <td>Car Wash</td>
+                                    <td>⭐⭐⭐</td>
+                                    <td>Service was okay but delayed</td>
+                                    <td><span class="sentiment neutral">Neutral</span></td>
+                                </tr>
+                                <tr>
+                                    <td>John</td>
+                                    <td>Fuel Purchase</td>
+                                    <td>⭐⭐</td>
+                                    <td>Long wait times and poor service</td>
+                                    <td><span class="sentiment negative">Negative</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Word Cloud -->
+                        <div class="card">
+                            <h3>Common Themes</h3>
+                            <div class="word-cloud">
+                                <span style="font-size: 28px; color: #4A90E2;">Delivery</span>
+                                <span style="font-size: 20px; color: #6DD47E;">Service</span>
+                                <span style="font-size: 24px; color: #4A90E2;">Speed</span>
+                                <span style="font-size: 18px; color: #999;">Quality</span>
+                                <span style="font-size: 22px; color: #6DD47E;">Support</span>
+                                <span style="font-size: 16px; color: #999;">Price</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- AI Insights Section -->
+                    <section id="insights-section" class="dashboard-section">
+                        <h2>AI Insights</h2>
+                        <div class="insights-grid">
+                            <div class="card insight-card">
+                                <h3>Most Common Issue</h3>
+                                <p class="insight-value">Delivery Delays</p>
+                                <p class="insight-stat">42%</p>
+                            </div>
+                            <div class="card insight-card">
+                                <h3>Average Response Time</h3>
+                                <p class="insight-value">3.2 hours</p>
+                            </div>
+                            <div class="card insight-card">
+                                <h3>Tone Analysis</h3>
+                                <p class="insight-stat">Friendly 67% | Neutral 23% | Frustrated 10%</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>AI Recommendations</h3>
+                            <ul class="recommendations-list">
+                                <li>Automate routine delivery inquiries</li>
+                                <li>Enhance tone consistency in responses</li>
+                                <li>Introduce multilingual support for chatbot</li>
+                                <li>Implement proactive outreach for negative feedback</li>
+                                <li>Optimize peak hour staffing</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Team Performance Section -->
+                    <section id="performance-section" class="dashboard-section">
+                        <h2>Team Performance</h2>
+                        <table class="performance-table">
+                            <thead>
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>Chats Handled</th>
+                                    <th>Avg Rating</th>
+                                    <th>Resolution Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sarah Johnson</td>
+                                    <td>145</td>
+                                    <td>4.8/5</td>
+                                    <td>94%</td>
+                                </tr>
+                                <tr>
+                                    <td>Michael Chen</td>
+                                    <td>132</td>
+                                    <td>4.6/5</td>
+                                    <td>91%</td>
+                                </tr>
+                                <tr>
+                                    <td>Amara Okafor</td>
+                                    <td>128</td>
+                                    <td>4.7/5</td>
+                                    <td>93%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/js/admin-script.js"></script>
+</body>
+</html>

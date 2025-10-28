@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Wells Energies - Agent Dashboard</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login modal for agent authentication -->
+        <div id="login-modal" class="login-modal">
+            <div class="login-container">
+                <div class="login-box">
+                    <h2>Agent Login</h2>
+                    <p class="login-subtitle">Enter your credentials to access the agent dashboard</p>
+                    <form id="login-form" class="login-form">
+                        <div class="form-group">
+                            <label for="login-username">Username</label>
+                            <input type="text" id="login-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary login-btn">Login</button>
+                        <p class="login-error hidden" id="login-error">Invalid credentials. Please try again.</p>
+                    </form>
+                    <p class="login-hint">Demo: username: <strong>agent</strong> | password: <strong>agent123</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="navbar hidden" id="navbar">
+            <div class="navbar-container">
+                <div class="logo-section">
+                    <img src="static/images/green-wells-logo.png" alt="Green Wells Energies logo" class="site-logo">
+                    <span class="brand-name">Green Wells Energies - Agent</span>
+                </div>
+                <div class="nav-buttons">
+                    <a href="index.html" class="nav-link">Back to User</a>
+                    <button id="logout-btn" class="nav-btn logout-btn">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Agent Dashboard -->
+        <div id="agent-view" class="view hidden" id="agent-dashboard">
+            <div class="agent-container">
+                <!-- Active Chats Panel -->
+                <aside class="chats-panel">
+                    <h3>Active Chats</h3>
+                    <div id="active-chats" class="chats-list">
+                        <div class="chat-item active" data-chat-id="1">
+                            <div class="chat-item-header">
+                                <span class="chat-name">Mercy K.</span>
+                                <span class="sentiment-tag friendly">Friendly</span>
+                            </div>
+                            <p class="chat-preview">How can I refill my LPG cylinder?</p>
+                        </div>
+                        <div class="chat-item" data-chat-id="2">
+                            <div class="chat-item-header">
+                                <span class="chat-name">James M.</span>
+                                <span class="sentiment-tag urgent">Urgent</span>
+                            </div>
+                            <p class="chat-preview">I haven't received my fuel order...</p>
+                        </div>
+                        <div class="chat-item" data-chat-id="3">
+                            <div class="chat-item-header">
+                                <span class="chat-name">Lisa P.</span>
+                                <span class="sentiment-tag neutral">Neutral</span>
+                            </div>
+                            <p class="chat-preview">What are your operating hours?</p>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Conversation Window -->
+                <main class="conversation-panel">
+                    <div class="conversation-header">
+                        <h3 id="current-customer">Mercy K.</h3>
+                        <span id="current-sentiment" class="sentiment-tag friendly">Friendly</span>
+                    </div>
+
+                    <div id="agent-chat-messages" class="agent-chat-messages">
+                        <div class="chat-bubble customer">
+                            <p>Hi, how can I refill my LPG cylinder?</p>
+                            <span class="timestamp">10:30 AM</span>
+                        </div>
+                        <div class="chat-bubble agent">
+                            <p>Hello Mercy! You can visit any Green Wells service station or request pickup via our hotline.</p>
+                            <span class="timestamp">10:31 AM</span>
+                        </div>
+                        <div class="chat-bubble customer">
+                            <p>Do you operate in Kisumu?</p>
+                            <span class="timestamp">10:32 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-input-area">
+                        <div class="ai-suggestions">
+                            <button class="suggestion-btn">Thank you for reaching out! I've logged your issue and will follow up within two hours.</button>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="agent-input" placeholder="Type your response...">
+                            <button class="btn btn-primary">Send</button>
+                        </div>
+                        <button class="btn btn-secondary">Mark as Resolved</button>
+                    </div>
+                </main>
+
+                <!-- Feedback Notes Panel -->
+                <aside class="notes-panel">
+                    <h3>Customer Notes</h3>
+                    <div class="notes-content">
+                        <p><strong>Service:</strong> LPG Refill</p>
+                        <p><strong>Rating:</strong> ⭐⭐⭐⭐⭐</p>
+                        <p><strong>Previous Issues:</strong> None</p>
+                        <textarea placeholder="Add notes..." class="notes-textarea"></textarea>
+                        <button class="btn btn-small">Save Notes</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/js/agent-script.js"></script>
+</body>
+</html>
