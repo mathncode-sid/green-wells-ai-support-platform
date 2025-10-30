@@ -1,0 +1,6 @@
+python-telegram-bot==20.5
+textblob
+httpx==0.24.1
+deep-translator
+langdetect
+schedule
