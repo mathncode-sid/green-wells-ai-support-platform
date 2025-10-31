@@ -6,3 +6,4 @@ langdetect
 schedule
 python-dotenv
 google-generativeai
+flask
