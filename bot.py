@@ -1,5 +1,5 @@
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 from textblob import TextBlob
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -257,35 +257,72 @@ async def dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+# --- Handle Messages & Admin Replies ---
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     text, user_lang = detect_and_translate(update.message.text)
     polarity = TextBlob(text).sentiment.polarity
+
     if "refill" in text.lower():
         response = "You can refill your LPG cylinder at any Green Wells station near you, including Kisumu, Ugunja, or Mbita."
     elif "location" in text.lower():
         response = "We currently operate in Kisumu, Ugunja, and Mbita."
     elif "price" in text.lower() or "cost" in text.lower():
         response = "Fuel prices vary by location. Please visit your nearest Green Wells station for accurate pricing."
-    elif polarity < -0.2:
+    elif polarity < -0.2 or any(w in text.lower() for w in ["bad", "poor", "rude", "slow", "terrible", "complaint"]):
         response = "I'm sorry to hear that. I will notify our support team right away."
+
+        # Send alert with "Reply" button to admin
+        keyboard = [[InlineKeyboardButton(f"Reply to {user.first_name}", callback_data=f"reply_{user.id}")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
         await context.bot.send_message(
             ADMIN_CHAT_ID,
-            f"🚨 New negative feedback from {user.first_name} (id: {user.id}):\n\n{text}"
+            f"🚨 New negative feedback from {user.first_name} (id: {user.id}):\n\n{text}",
+            reply_markup=reply_markup
         )
     else:
         prompt = f"The user said: {text}\nProvide a short, polite, and professional response."
         ai_reply = gemini_generate_reply(prompt)
         response = ai_reply if ai_reply else "Thank you for your message."
+
     sentiment = "Positive" if polarity > 0.2 else "Negative" if polarity < -0.2 else "Neutral"
     category = categorize_feedback(text)
     log_feedback(user, text, sentiment, category)
+
     if user_lang != "en" and translator:
         try:
             response = translator.translate(response, source='en', target=user_lang)
         except Exception:
             pass
+
     await update.message.reply_text(response)
+
+
+async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    if query.data.startswith("reply_"):
+        user_id = int(query.data.split("_")[1])
+        context.user_data["reply_to_id"] = user_id
+        await query.message.reply_text(
+            f"Type your reply for user {user_id} below. Start your message with /send"
+        )
+
+
+async def send_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_chat.id == ADMIN_CHAT_ID:
+        if "reply_to_id" not in context.user_data:
+            await update.message.reply_text("Please click a 'Reply to user' button first.")
+            return
+
+        user_id = context.user_data["reply_to_id"]
+        msg = update.message.text.replace("/send", "", 1).strip()
+
+        await context.bot.send_message(user_id, f"Support Agent: {msg}")
+        await update.message.reply_text("✅ Message sent to user.")
+        del context.user_data["reply_to_id"]
 
 
 # --- MAIN APP ---
@@ -299,10 +336,12 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("summary", summary))
     app.add_handler(CommandHandler("dashboard", dashboard))
+    app.add_handler(CommandHandler("send", send_reply))
+    app.add_handler(CallbackQueryHandler(button_callback))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     threading.Thread(target=run_scheduler, args=(app,), daemon=True).start()
 
-    # --- Render Flask healthcheck server ---
+    # Flask healthcheck for Render
     web_app = Flask(__name__)
 
     @web_app.route('/')
