@@ -151,12 +151,49 @@ def generate_html_dashboard():
     categories = {}
     for d in data:
         categories[d.get("category", "Other")] = categories.get(d.get("category", "Other"), 0) + 1
+    category_labels = list(categories.keys())
+    category_counts = list(categories.values())
     html = f"""<!DOCTYPE html>
-    <html><head><title>Green Wells Dashboard</title></head>
-    <body><h1>Green Wells Energies - AI Dashboard</h1>
-    <p>Total Feedback: {total}</p>
-    <p>Positive: {pos} | Neutral: {neu} | Negative: {neg}</p>
-    <ul>{''.join(f"<li>{k}: {v}</li>" for k, v in categories.items())}</ul></body></html>"""
+    <html><head>
+        <title>Green Wells Energies Dashboard</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            body {{ font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 40px; }}
+            .card {{ background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }}
+            h1 {{ color: #2e7d32; }}
+            canvas {{ max-width: 600px; margin: 0 auto; }}
+        </style>
+    </head>
+    <body>
+        <h1>🛢️ Green Wells Energies - Feedback Dashboard</h1>
+        <div class="card">
+            <h3>Feedback Summary</h3>
+            <p><b>Total Feedback:</b> {total}</p>
+            <p><b>Positive:</b> {pos} | <b>Neutral:</b> {neu} | <b>Negative:</b> {neg}</p>
+        </div>
+        <div class="card">
+            <h3>Feedback by Category</h3>
+            <canvas id="barChart"></canvas>
+        </div>
+        <div class="card">
+            <h3>Category Distribution</h3>
+            <canvas id="pieChart"></canvas>
+        </div>
+        <script>
+            const labels = {json.dumps(category_labels)};
+            const counts = {json.dumps(category_counts)};
+            new Chart(document.getElementById('barChart'), {{
+                type: 'bar',
+                data: {{ labels: labels, datasets: [{{ label: 'Feedback Count', data: counts, backgroundColor: 'rgba(46,125,50,0.7)' }}] }},
+                options: {{ responsive: true }}
+            }});
+            new Chart(document.getElementById('pieChart'), {{
+                type: 'pie',
+                data: {{ labels: labels, datasets: [{{ data: counts, backgroundColor: ['#2e7d32','#66bb6a','#81c784','#a5d6a7','#c8e6c9'] }}] }},
+                options: {{ responsive: true }}
+            }});
+        </script>
+    </body></html>"""
     with open("data/dashboard.html", "w") as f:
         f.write(html)
 
@@ -237,10 +274,7 @@ async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(summary_text)
     dashboard_path = "data/dashboard.html"
     if os.path.exists(dashboard_path):
-        await update.message.reply_document(
-            open(dashboard_path, "rb"),
-            filename="GreenWells_Dashboard.html"
-        )
+        await update.message.reply_document(open(dashboard_path, "rb"), filename="GreenWells_Dashboard.html")
 
 
 async def dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -251,10 +285,7 @@ async def dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not os.path.exists(dashboard_path):
         await update.message.reply_text("No dashboard yet. Run /summary first.")
         return
-    await update.message.reply_document(
-        open(dashboard_path, "rb"),
-        filename="GreenWells_Dashboard.html"
-    )
+    await update.message.reply_document(open(dashboard_path, "rb"), filename="GreenWells_Dashboard.html")
 
 
 # --- Handle Messages & Admin Replies ---
@@ -272,7 +303,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif polarity < -0.2 or any(w in text.lower() for w in ["bad", "poor", "rude", "slow", "terrible", "complaint"]):
         response = "I'm sorry to hear that. I will notify our support team right away."
 
-        # Send alert with "Reply" button to admin
         keyboard = [[InlineKeyboardButton(f"Reply to {user.first_name}", callback_data=f"reply_{user.id}")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -307,7 +337,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_id = int(query.data.split("_")[1])
         context.user_data["reply_to_id"] = user_id
         await query.message.reply_text(
-            f"Type your reply for user {user_id} below. Start your message with /send"
+            f"Please type your reply below starting with /send. Example:\n\n/send Your message here"
         )
 
 
@@ -341,7 +371,6 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     threading.Thread(target=run_scheduler, args=(app,), daemon=True).start()
 
-    # Flask healthcheck for Render
     web_app = Flask(__name__)
 
     @web_app.route('/')
