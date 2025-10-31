@@ -312,7 +312,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=reply_markup
         )
     else:
-        prompt = f"The user said: {text}\nProvide a short, polite, and professional response."
+        prompt = (
+            f"You are Green Wells Energies' virtual support assistant. "
+            f"Respond naturally and professionally to this customer message as the company would. "
+            f"Provide only one short, friendly message — do not list options or meta commentary.\n\n"
+            f"Customer message: {text}\n\n"
+            f"Tone: warm, concise, confident, and helpful."
+        )
         ai_reply = gemini_generate_reply(prompt)
         response = ai_reply if ai_reply else "Thank you for your message."
 
