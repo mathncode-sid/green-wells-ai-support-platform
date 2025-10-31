@@ -364,7 +364,8 @@ def summarize_feedback():
 async def send_daily_summary(context: ContextTypes.DEFAULT_TYPE):
     summary_text = summarize_feedback()
     # Send escaped MarkdownV2 so formatting is preserved safely
-    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=summary_text, parse_mode="MarkdownV2")
+    safe_summary = sanitize_and_escape_for_markdown(summary_text)
+    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=safe_summary, parse_mode="MarkdownV2")
 
     dashboard_path = "data/dashboard.html"
     if os.path.exists(dashboard_path):
@@ -380,7 +381,8 @@ async def test_summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_chat.id == ADMIN_CHAT_ID:
         summary_text = summarize_feedback()
         # Send escaped MarkdownV2 so formatting is preserved safely
-        await update.message.reply_text(summary_text, parse_mode="MarkdownV2")
+        safe_summary = sanitize_and_escape_for_markdown(summary_text)
+        await update.message.reply_text(safe_summary, parse_mode="MarkdownV2")
         dashboard_path = "data/dashboard.html"
         if os.path.exists(dashboard_path):
             await update.message.reply_document(
