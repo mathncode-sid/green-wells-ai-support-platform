@@ -1,5 +1,5 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from textblob import TextBlob
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -9,7 +9,8 @@ import os, schedule, time, threading, asyncio, re
 from pathlib import Path
 from langdetect import detect
 from telegram.helpers import escape_markdown
-from flask import Flask   
+from flask import Flask
+
 # optional deep-translator import
 try:
     from deep_translator import GoogleTranslator
@@ -115,15 +116,6 @@ def categorize_feedback(text):
         return "Other"
 
 
-def get_recent_feedback(n=3):
-    try:
-        with open("data/feedback.json", "r") as f:
-            data = json.load(f)
-            return data[-n:] if len(data) >= n else data
-    except Exception:
-        return []
-
-
 def log_feedback(user, message, sentiment, category):
     data_file = "data/feedback.json"
     os.makedirs("data", exist_ok=True)
@@ -159,8 +151,6 @@ def generate_html_dashboard():
     categories = {}
     for d in data:
         categories[d.get("category", "Other")] = categories.get(d.get("category", "Other"), 0) + 1
-    category_labels = list(categories.keys())
-    category_counts = list(categories.values())
     html = f"""<!DOCTYPE html>
     <html><head><title>Green Wells Dashboard</title></head>
     <body><h1>Green Wells Energies - AI Dashboard</h1>
@@ -206,12 +196,12 @@ def summarize_feedback():
     return summary_text
 
 
-async def send_daily_summary(context: ContextTypes.DEFAULT_TYPE):
+async def send_daily_summary_via_app(app):
     summary_text = summarize_feedback()
-    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=summary_text)
+    await app.bot.send_message(chat_id=ADMIN_CHAT_ID, text=summary_text)
     dashboard_path = "data/dashboard.html"
     if os.path.exists(dashboard_path):
-        await context.bot.send_document(
+        await app.bot.send_document(
             chat_id=ADMIN_CHAT_ID,
             document=open(dashboard_path, "rb"),
             filename="GreenWells_Dashboard.html",
@@ -221,7 +211,7 @@ async def send_daily_summary(context: ContextTypes.DEFAULT_TYPE):
 
 def run_scheduler(app):
     async def job():
-        await send_daily_summary(app)
+        await send_daily_summary_via_app(app)
     def sync_job():
         asyncio.run(job())
     schedule.every().day.at("19:00").do(sync_job)
@@ -239,6 +229,34 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_chat.id != ADMIN_CHAT_ID:
+        await update.message.reply_text("You are not authorized to use this command.")
+        return
+    summary_text = summarize_feedback()
+    await update.message.reply_text(summary_text)
+    dashboard_path = "data/dashboard.html"
+    if os.path.exists(dashboard_path):
+        await update.message.reply_document(
+            open(dashboard_path, "rb"),
+            filename="GreenWells_Dashboard.html"
+        )
+
+
+async def dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_chat.id != ADMIN_CHAT_ID:
+        await update.message.reply_text("You are not authorized to use this command.")
+        return
+    dashboard_path = "data/dashboard.html"
+    if not os.path.exists(dashboard_path):
+        await update.message.reply_text("No dashboard yet. Run /summary first.")
+        return
+    await update.message.reply_document(
+        open(dashboard_path, "rb"),
+        filename="GreenWells_Dashboard.html"
+    )
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     text, user_lang = detect_and_translate(update.message.text)
@@ -251,6 +269,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = "Fuel prices vary by location. Please visit your nearest Green Wells station for accurate pricing."
     elif polarity < -0.2:
         response = "I'm sorry to hear that. I will notify our support team right away."
+        await context.bot.send_message(
+            ADMIN_CHAT_ID,
+            f"🚨 New negative feedback from {user.first_name} (id: {user.id}):\n\n{text}"
+        )
     else:
         prompt = f"The user said: {text}\nProvide a short, polite, and professional response."
         ai_reply = gemini_generate_reply(prompt)
@@ -275,6 +297,8 @@ def main():
 
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("summary", summary))
+    app.add_handler(CommandHandler("dashboard", dashboard))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     threading.Thread(target=run_scheduler, args=(app,), daemon=True).start()
 
